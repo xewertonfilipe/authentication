@@ -1,0 +1,7 @@
+services:
+  bytebank-authentication:
+    build: .
+    ports:
+      - "8087:80"
+    environment:
+      NODE_ENV: production
