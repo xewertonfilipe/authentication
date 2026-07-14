@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
-import type { AxiosError, AxiosResponse } from "axios";
+import { useEffect } from "react";
 
 import loginImg from "../../assets/imgs/login.png";
-import http from "../../http";
-import type {
-  AuthErrorResponse,
-  AuthTokenResponse,
-  LoginCredentials,
-} from "../../interfaces";
+import {
+  clearAuthError,
+  clearStoredToken,
+  loginUser,
+  resetAuthState,
+  selectAuthError,
+  selectAuthStatus,
+  selectCredentials,
+  setCredentialField,
+} from "../../features/auth/auth";
+import type { LoginCredentials } from "../../interfaces";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { Button } from "../Button";
 import { Fieldset } from "../Fieldset";
 import { Form, FormActions } from "../Form";
@@ -20,46 +25,38 @@ interface FormLoginProps {
 }
 
 export const FormLogin = ({ navigateTo }: FormLoginProps) => {
-  const [credentials, setCredentials] = useState<LoginCredentials>({
-    email: "",
-    password: "",
-  });
-  const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useAppDispatch();
+  const credentials = useAppSelector(selectCredentials);
+  const errorMessage = useAppSelector(selectAuthError);
+  const authStatus = useAppSelector(selectAuthStatus);
 
   useEffect(() => {
-    sessionStorage.removeItem("token");
-  }, []);
+    clearStoredToken();
+    dispatch(resetAuthState());
+  }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (errorMessage) {
-      setErrorMessage("");
+      dispatch(clearAuthError());
     }
-    setCredentials((prevCredentials) => ({
-      ...prevCredentials,
-      [name as keyof LoginCredentials]: value,
-    }));
+    dispatch(
+      setCredentialField({
+        field: name as keyof LoginCredentials,
+        value,
+      })
+    );
   };
 
-  const loginUser = (evt: React.FormEvent<HTMLFormElement>) => {
+  const submitLogin = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    http
-      .post<AuthTokenResponse>("/auth/token", credentials)
-      .then((response: AxiosResponse<AuthTokenResponse>) => {
-        sessionStorage.setItem("token", response.data.accessToken);
+    dispatch(loginUser(credentials))
+      .unwrap()
+      .then(() => {
         navigateTo();
       })
-      .catch((error: AxiosError<AuthErrorResponse>) => {
-        if (error?.response?.status === 401) {
-          setErrorMessage("Dados inválidos. Verifique e tente novamente.");
-          return;
-        }
-
-        setErrorMessage(
-          "Não foi possível realizar o login. Tente novamente em instantes."
-        );
-      });
+      .catch(() => undefined);
   };
 
   return (
@@ -68,7 +65,7 @@ export const FormLogin = ({ navigateTo }: FormLoginProps) => {
         <Image src={loginImg} />
       </Figure>
       <Heading>Preencha os campos abaixo para efetuar login!</Heading>
-      <Form onSubmit={loginUser}>
+      <Form onSubmit={submitLogin}>
         <Fieldset>
           <FormLabel>Email</FormLabel>
           <TextField
@@ -92,7 +89,9 @@ export const FormLogin = ({ navigateTo }: FormLoginProps) => {
           />
         </Fieldset>
         <FormActions>
-          <Button type="submit">Efetuar login</Button>
+          <Button type="submit" disabled={authStatus === "loading"}>
+            {authStatus === "loading" ? "Efetuando login..." : "Efetuar login"}
+          </Button>
         </FormActions>
       </Form>
       {errorMessage && <HeadingWarning>{errorMessage}</HeadingWarning>}

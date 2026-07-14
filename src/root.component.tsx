@@ -1,9 +1,11 @@
 import { navigateToUrl } from "single-spa";
+import { Provider } from "react-redux";
 
 import { FormLogin } from "./components/FormLogin";
+import store from "./store";
 import { AuthPage } from "./styles";
 
-export default function Root() {
+function AuthenticationApp() {
   function handleHome() {
     navigateToUrl("/home");
   }
@@ -12,5 +14,13 @@ export default function Root() {
     <AuthPage>
       <FormLogin navigateTo={handleHome} />
     </AuthPage>
+  );
+}
+
+export default function Root() {
+  return (
+    <Provider store={store}>
+      <AuthenticationApp />
+    </Provider>
   );
 }
