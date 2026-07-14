@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
+import type { AxiosError, AxiosResponse } from "axios";
 
 import loginImg from "../../assets/imgs/login.png";
 import http from "../../http";
+import type {
+  AuthErrorResponse,
+  AuthTokenResponse,
+  LoginCredentials,
+} from "../../interfaces";
 import { Button } from "../Button";
 import { Fieldset } from "../Fieldset";
 import { Form, FormActions } from "../Form";
@@ -14,7 +20,10 @@ interface FormLoginProps {
 }
 
 export const FormLogin = ({ navigateTo }: FormLoginProps) => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    email: "",
+    password: "",
+  });
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -28,7 +37,7 @@ export const FormLogin = ({ navigateTo }: FormLoginProps) => {
     }
     setCredentials((prevCredentials) => ({
       ...prevCredentials,
-      [name]: value,
+      [name as keyof LoginCredentials]: value,
     }));
   };
 
@@ -36,12 +45,12 @@ export const FormLogin = ({ navigateTo }: FormLoginProps) => {
     evt.preventDefault();
 
     http
-      .post("/auth/token", credentials)
-      .then((response: any) => {
+      .post<AuthTokenResponse>("/auth/token", credentials)
+      .then((response: AxiosResponse<AuthTokenResponse>) => {
         sessionStorage.setItem("token", response.data.accessToken);
         navigateTo();
       })
-      .catch((error: any) => {
+      .catch((error: AxiosError<AuthErrorResponse>) => {
         if (error?.response?.status === 401) {
           setErrorMessage("Dados inválidos. Verifique e tente novamente.");
           return;

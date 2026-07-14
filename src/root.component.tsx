@@ -3,7 +3,7 @@ import { navigateToUrl } from "single-spa";
 import { FormLogin } from "./components/FormLogin";
 import { AuthPage } from "./styles";
 
-export default function Root(props) {
+export default function Root() {
   function handleHome() {
     navigateToUrl("/home");
   }

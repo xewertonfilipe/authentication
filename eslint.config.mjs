@@ -24,4 +24,10 @@ export default defineConfig([
     },
     ignores: ["dist/**", "node_modules/**"],
   },
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "no-undef": "off",
+    },
+  },
 ]);
