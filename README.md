@@ -51,6 +51,12 @@ docker compose up --build
 
 - Modo local do orchestrator (`isLocal`): consome `http://localhost:9007/bytebank-authentication.js`
 
+## Responsividade
+
+- Layout do login ajustado para telas pequenas, tablets e desktop.
+- Breakpoints validados: 320px, 768px e 1024px.
+- Ajustes principais: card com largura fluida, imagem responsiva, tipografia escalavel e botao sem largura fixa rigida.
+
 ## Scripts uteis
 
 - `npm start`: sobe webpack dev server na porta 9007
