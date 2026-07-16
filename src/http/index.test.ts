@@ -12,13 +12,43 @@ jest.mock("axios", () => ({
 }));
 
 describe("http client", () => {
+  const originalEnvValue = process.env.VITE_API_BASE_URL;
+
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
   });
 
-  it("creates axios client with baseURL", async () => {
+  afterEach(() => {
+    process.env.VITE_API_BASE_URL = originalEnvValue;
+    jest.restoreAllMocks();
+  });
+
+  it("creates axios client with baseURL from env", async () => {
     const requestUse = jest.fn();
+
+    process.env.VITE_API_BASE_URL = "https://api.bytebank.test";
+
+    mockCreate.mockReturnValue({
+      interceptors: {
+        request: {
+          use: requestUse,
+        },
+      },
+    });
+
+    await import(".");
+
+    expect(mockCreate).toHaveBeenCalledWith({
+      baseURL: "https://api.bytebank.test/",
+    });
+    expect(requestUse).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to localhost baseURL when env is missing", async () => {
+    const requestUse = jest.fn();
+
+    delete process.env.VITE_API_BASE_URL;
 
     mockCreate.mockReturnValue({
       interceptors: {

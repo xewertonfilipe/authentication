@@ -93,3 +93,4 @@ npm run coverage
 1. Se a porta `9007` estiver ocupada, finalize o processo em conflito e rode `npm start` novamente.
 2. Se o shell nao carregar a tela de login, confirme se o orchestrator esta com import map do ambiente correto.
 3. Se houver falha de token/session em desenvolvimento, limpe o Local Storage e recarregue a pagina.
+4. Se as chamadas de API estiverem indo para URL errada, valide a variavel `VITE_API_BASE_URL` no ambiente local ou nas Environment Variables da Vercel e gere novo deploy.
