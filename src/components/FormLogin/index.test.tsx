@@ -123,4 +123,30 @@ describe("FormLogin", () => {
       )
     ).toBeInTheDocument();
   });
+
+  it("shows loading spinner and keeps submit disabled while auth is loading", () => {
+    const mockedHttp = http as unknown as { post: jest.Mock };
+    const store = createTestStore();
+
+    mockedHttp.post.mockImplementation(() => new Promise(() => undefined));
+
+    render(
+      <Provider store={store}>
+        <FormLogin navigateTo={jest.fn()} />
+      </Provider>
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/Digite seu email/i), {
+      target: { name: "email", value: "maria@bytebank.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Digite sua senha/i), {
+      target: { name: "password", value: "123456" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Efetuar login/i }));
+
+    const button = screen.getByRole("button", { name: /Efetuando login/i });
+
+    expect(button).toBeDisabled();
+    expect(screen.getByTestId("button-loading-spinner")).toBeInTheDocument();
+  });
 });

@@ -89,7 +89,11 @@ export const FormLogin = ({ navigateTo }: FormLoginProps) => {
           />
         </Fieldset>
         <FormActions>
-          <Button type="submit" disabled={authStatus === "loading"}>
+          <Button
+            type="submit"
+            loading={authStatus === "loading"}
+            disabled={authStatus === "loading"}
+          >
             {authStatus === "loading" ? "Efetuando login..." : "Efetuar login"}
           </Button>
         </FormActions>
